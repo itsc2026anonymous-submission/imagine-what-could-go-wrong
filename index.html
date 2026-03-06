@@ -1,71 +1,359 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Imagine what could go wrong: Corner Case Detection and Prediction in Autonomous Driving with World Model</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="Referrer-Policy" content="no-referrer" />
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+
+  <title>Anonymous Project Page</title>
+  <meta name="description" content="Anonymous project page for paper supplementary material." />
+  <meta name="author" content="Anonymous" />
+  <meta name="keywords" content="anonymous research, supplementary material" />
+
   <style>
-    :root { color-scheme: light dark; }
+    :root {
+      --bg: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --soft: #f8fafc;
+      --accent: #2563eb;
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --maxw: 1100px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.55;
       margin: 0;
-      padding: 40px 16px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
     }
-    main {
-      max-width: 860px;
-      margin: 0 auto;
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { width: min(calc(100% - 32px), var(--maxw)); margin: 0 auto; }
+    .hero {
+      padding: 56px 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
     }
-    h1 { font-size: 1.8rem; margin: 0 0 0.6rem; }
-    .subtitle { opacity: 0.85; margin: 0 0 1.2rem; }
+    .title { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; margin: 0 0 12px; text-align: center; }
+    .authors, .venue { text-align: center; color: var(--muted); margin: 6px 0; }
+    .button-row {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 22px;
+    }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 120px; padding: 10px 16px; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow);
+      font-weight: 600;
+    }
+    .button.disabled,
+    .button[aria-disabled="true"] {
+      background: #f3f4f6;
+      color: #9ca3af;
+      border: 1px solid #e5e7eb;
+      box-shadow: none;
+      pointer-events: none;
+      cursor: default;
+    }
+    .section { padding: 34px 0; }
+    .section h2 { font-size: 1.8rem; margin: 0 0 16px; text-align: center}
+    .section h3 { font-size: 1.2rem; margin: 18px 0 10px; }
+    .lead { color: var(--muted); }
     .card {
-      border: 1px solid rgba(127,127,127,0.25);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin: 14px 0;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 18px;
     }
-    ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
-    a { text-underline-offset: 0.15em; }
-    footer { margin-top: 22px; font-size: 0.95rem; opacity: 0.8; }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .figure {
+      background: var(--soft); border: 1px dashed #cbd5e1; border-radius: var(--radius);
+      min-height: 320px; display: grid; place-items: center; overflow: hidden;
+    }
+    .figure img { width: 100%; height: auto; display: block; }
+    .placeholder {
+      color: var(--muted); text-align: center; padding: 24px; font-size: 0.98rem;
+    }
+    .caption { color: var(--muted); margin-top: 10px; font-size: 0.95rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.96rem; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { background: #f8fafc; }
+    pre {
+      margin: 0; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+      background: #0f172a; color: #e2e8f0; border-radius: 14px; padding: 16px;
+      font-size: 0.92rem; overflow-x: auto;
+    }
+    .todo { padding-left: 18px; }
+    .footer {
+      padding: 24px 0 50px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.94rem;
+    }
+    .small { font-size: 0.9rem; color: var(--muted); }
+    .abstract-text {
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.96rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hero { padding-top: 38px; }
+    }
   </style>
 </head>
-
 <body>
+  <header class="hero">
+    <div class="container">
+      <h1 class="title">Imagine what could go wrong: Corner Case Detection and Prediction in Autonomous Driving using World Model</h1>
+      <p class="authors">Anonymous</p>
+      <p class="venue">Anonymous submission — supplementary material page</p>
+      <div class="button-row" aria-label="project links">
+        <span class="button disabled">Paper</span>
+        <span class="button disabled">Code</span>
+        <span class="button disabled">Dataset</span>
+      </div>
+    </div>
+  </header>
+
   <main>
-    <h1>Imagine what could go wrong: Corner Case Detection and Prediction in Autonomous Driving with World Model</h1>
-    <p class="subtitle">Anonymous paper submission page</p>
-
-    <section class="card">
-      <h2 style="margin:0 0 0.4rem; font-size:1.15rem;">Links</h2>
-      <ul>
-        <li>Paper (PDF): <em>to be added</em></li>
-        <li>Code repository: <em>this GitHub repository</em></li>
-        <li>Supplementary material: <em>to be added</em></li>
-      </ul>
+    <section class="section">
+      <div class="container">
+        <h2>Abstract</h2>
+        <div class="abstract-text">
+          Corner case detection and prediction are crucial for the safety and continuous development of autonomous driving (AD) systems. However, existing methods only focus on the internal states and cannot cope with complex scenarios. The emergence of world models in AD provides the possibilities to leverage real-world knowledge and reasoning. In this paper, we propose a framework to detect and predict imminent corner cases for AD systems using world models. We introduce the concept of AD system expert, i.e., world model finetuned to learn the driving behavior of the AD system. We demonstrate the feasibility of detecting and predicting corner cases, such as collision and unjustified stop, using a framework containing the AD system expert. We collect driving data using autonomous driving software Autoware with simulation software CARLA to finetune the Vista world model. The fine-tuning data and checkpoints are made available online. Our results show that the framework is able to predict the corner cases in AD with an overall precision of 0.8037 and a recall of 0.7227 for 576 video rollouts.
+        </div>
+      </div>
     </section>
 
-    <section class="card">
-      <h2 style="margin:0 0 0.4rem; font-size:1.15rem;">Abstract</h2>
-      <p style="margin:0;">
-        <em>To be added.</em>
-      </p>
+    <section class="section">
+      <div class="container">
+        <h2>Framework</h2>
+        <div class="card">
+          <div class="figure">
+            <img src="media/framework.gif" alt="Corner case detection framework with world model">
+          </div>
+          <div class="caption">Corner case detection framework with world model</div>
+        </div>
+      </div>
     </section>
 
-    <section class="card">
-      <h2 style="margin:0 0 0.4rem; font-size:1.15rem;">Reproducibility</h2>
-      <ul>
-        <li>Environment: <em>to be added</em></li>
-        <li>How to run: see <code>README.md</code></li>
-        <li>Data access: <em>to be added</em></li>
-      </ul>
+    <section class="section">
+      <div class="container">
+        <h2>Results</h2>
+        <div class="card">
+          <div class="figure">
+            <img src="media/corner_case_detection_results_w_fidelity.png" alt="Video Rollouts Fidelity and Detection Results with Three Corner Case Examples">
+          </div>
+          <div class="caption">Video Rollouts Fidelity and Detection Results with Three Corner Case Examples</div>
+        </div>
+      </div>
     </section>
 
-    <footer>
-      <p style="margin:0;">
-        Note: This page is intentionally minimal and anonymized for review.
-      </p>
-    </footer>
-  </main>
+    <section class="section">
+      <div class="container">
+        <h2>Corner Cases</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="figure">
+              <img src="media/CARLA_000085_real.gif" alt="Real: unjustified stop due to false detected collision">
+            </div>
+            <div class="caption">Real: unjustified stop due to false detected collision</div>
+          </div>
+          <div class="card">
+            <div class="figure">
+              <img src="media/CARLA_000085_virtual.gif" alt="Predicted: unjustified stop due to false detected collision">
+            </div>
+            <div class="caption">Predicted: unjustified stop due to false detected collision</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="figure">
+              <img src="media/CARLA_000252_real.gif" alt="Real: collision via rear-ending">
+            </div>
+            <div class="caption">Real: collision via rear-ending</div>
+          </div>
+          <div class="card">
+            <div class="figure">
+              <img src="media/CARLA_000252_virtual.gif" alt="Predicted: collision via rear-ending">
+            </div>
+            <div class="caption">Predicted: collision via rear-ending</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="figure">
+              <img src="media/CARLA_000554_real.gif" alt="Real: unjustified stop due to invalid line-merging">
+            </div>
+            <div class="caption">Real: unjustified stop due to invalid line-merging</div>
+          </div>
+          <div class="card">
+            <div class="figure">
+              <img src="media/CARLA_000554_virtual.gif" alt="Predicted: unjustified stop due to invalid line-merging">
+            </div>
+            <div class="caption">Predicted: unjustified stop due to invalid line-merging</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>Ablation Study</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Ablation over Conditioning Frames</h3>
+            <div style="overflow-x: auto;">
+              <table aria-label="Ablation over the number of conditioning frames">
+                <thead>
+                  <tr>
+                    <th>Num of cond. frames</th>
+                    <th>Sensible (%)</th>
+                    <th>Nonsensical (%)</th>
+                    <th>Failure frame (&mu; &plusmn; &sigma;)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>85.7</td>
+                    <td>14.3</td>
+                    <td>11.02 &plusmn; 6.04</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>86.7</td>
+                    <td>13.3</td>
+                    <td>11.55 &plusmn; 4.68</td>
+                  </tr>
+                  <tr>
+                    <td><strong>3</strong></td>
+                    <td><strong>90.4</strong></td>
+                    <td><strong>9.6</strong></td>
+                    <td>9.95 &plusmn; 4.64</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>86.1</td>
+                    <td>13.9</td>
+                    <td>10.11 &plusmn; 3.86</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>90.2</td>
+                    <td>9.8</td>
+                    <td>9.75 &plusmn; 4.63</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="caption">
+              Ablation over the number of conditioning frames. Sensible and nonsensical rates sum to 100%. Failure frame statistics are computed only over nonsensical videos.
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>High-Level Action Prediction</h3>
+            <div style="overflow-x: auto;">
+              <table aria-label="Per-class F1 scores across different action control modes">
+                <thead>
+                  <tr>
+                    <th>Action type</th>
+                    <th>Straight</th>
+                    <th>Left</th>
+                    <th>Right</th>
+                    <th>Stop</th>
+                    <th>Overall</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Action-free (zero shot)</td>
+                    <td>0.794</td>
+                    <td><strong>0.698</strong></td>
+                    <td><strong>0.444</strong></td>
+                    <td>0.624</td>
+                    <td>0.640</td>
+                  </tr>
+                  <tr>
+                    <td>High-level command</td>
+                    <td><strong>0.797</strong></td>
+                    <td>0.685</td>
+                    <td>0.382</td>
+                    <td><strong>0.720</strong></td>
+                    <td><strong>0.646</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Trajectory</td>
+                    <td>0.784</td>
+                    <td>0.670</td>
+                    <td>0.390</td>
+                    <td>0.651</td>
+                    <td>0.624</td>
+                  </tr>
+                  <tr>
+                    <td>Speed &amp; steering angle</td>
+                    <td>0.811</td>
+                    <td>0.692</td>
+                    <td>0.345</td>
+                    <td>0.707</td>
+                    <td>0.639</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="caption">
+              Per-class F1 scores and macro-F1 for high-level action prediction across different action control modes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>TODO / Availability</h2>
+        <div class="card">
+          <ul class="todo">
+            <li>[ ] Publish code</li>
+            <li>[ ] Publish dataset</li>
+            <li>[ ] Publish finetuned checkpoints</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  <footer class="footer">
+    <div class="container">
+      Anonymous project page.
+    </div>
+  </footer>
 </body>
 </html>
